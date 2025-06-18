@@ -46,9 +46,8 @@ export const useUserStore = defineStore('user', {
       this.profileImage = url;
       localStorage.setItem('profileImage', url);
     },
-    async fetchUser() {
+    async fetchCurrentUser() {
       const { data } = await api.get('/api/users/me');
-      console.log('Fetched user data:', data);
       this.user = data;
     },
   },

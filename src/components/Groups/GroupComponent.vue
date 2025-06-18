@@ -1,7 +1,9 @@
 <template>
-  <div class="bg-white q-pa-sm" :class="$q.screen.gt.xs ? 'text-h5' : 'text-subtitle1'" style="opacity: 0.8;">
-    <div class="flex justify-between text-weight-semibold q-mb-xs q-pa-xs">
-      <p class="q-ma-none">Groups</p>
+  <div class="bg-white q-pa-md">
+    <div class="flex justify-between q-mb-xs">
+      <p class="q-ma-none text-weight-semibold" :class="$q.screen.gt.xs ? 'text-h5' : 'text-subtitle1'">
+        Groups
+      </p>
       <q-btn icon="add" color="secondary" label="Add group" flat dense @click="isDialogDisplay = true" />
       <GroupCreationDialog :model-value="isDialogDisplay" @add="handleAddGroup" />
     </div>
@@ -29,7 +31,9 @@ async function handleAddGroup(groupName: string, groupDescription: string) {
       id: "",
       name: groupName,
       description: groupDescription,
-      avatar: ""
+      avatar: "",
+      members: [],
+      ownerEmail: ""
     }
   );
   isDialogDisplay.value = false;
