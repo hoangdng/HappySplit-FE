@@ -8,14 +8,6 @@ declare module 'vue' {
   }
 }
 
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
 // If any client changes this (global) instance, it might be a
@@ -23,6 +15,13 @@ axios.interceptors.request.use((config) => {
 // "export default () => {}" function below (which runs individually
 // for each client)
 const api = axios.create({ baseURL: 'https://localhost:7285' });
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
 export default defineBoot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api

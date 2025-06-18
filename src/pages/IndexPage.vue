@@ -1,43 +1,30 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
+  <q-page class="column justify-start items-center q-py-lg q-col-gutter-y-sm">
+    <div style="width: 90vw;">
+      <BalanceComponent />
+    </div>
+    <div class="row" style="width: 90vw;">
+      <div class="col-8 bg-white q-px-md" :class="$q.screen.lt.sm ? 'hidden' : ''" style="opacity: 0.8;">
+        sdas
+      </div>
+      <div class="col-sm-4 col-xs-12 " :class="$q.screen.gt.xs ? 'q-pl-sm' : ''">
+        <GroupComponent />
+      </div>
+    </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Todo, Meta } from 'components/models';
-import ExampleComponent from 'components/ExampleComponent.vue';
+import { useQuasar } from 'quasar';
+import BalanceComponent from 'components/BalanceComponent.vue';
+import GroupComponent from 'components/Groups/GroupComponent.vue';
+import { useUserStore } from 'src/stores/user'
+import { onMounted } from 'vue';
 
-const todos = ref<Todo[]>([
-  {
-    id: 1,
-    content: 'ct1'
-  },
-  {
-    id: 2,
-    content: 'ct2'
-  },
-  {
-    id: 3,
-    content: 'ct3'
-  },
-  {
-    id: 4,
-    content: 'ct4'
-  },
-  {
-    id: 5,
-    content: 'ct5'
-  }
-]);
+const userStore = useUserStore()
+onMounted(async () => {
+  await userStore.fetchUser()
+})
 
-const meta = ref<Meta>({
-  totalCount: 1200
-});
+const $q = useQuasar();
 </script>

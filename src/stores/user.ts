@@ -1,7 +1,17 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
+import type { Group } from './group';
+import { api } from 'boot/axios';
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  groups: Group[] | undefined;
+}
 
 export const useUserStore = defineStore('user', {
   state: () => ({
+    user: null as User | null,
     token: localStorage.getItem('token') || null,
     profileImage: localStorage.getItem('profileImage') || null,
   }),
@@ -35,6 +45,11 @@ export const useUserStore = defineStore('user', {
     setProfileImage(url: string) {
       this.profileImage = url;
       localStorage.setItem('profileImage', url);
+    },
+    async fetchUser() {
+      const { data } = await api.get('/api/users/me');
+      console.log('Fetched user data:', data);
+      this.user = data;
     },
   },
 });
