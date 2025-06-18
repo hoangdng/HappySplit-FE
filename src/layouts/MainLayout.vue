@@ -12,7 +12,7 @@
           <div class="avatar-menu" style="position: relative;">
             <q-avatar>
               <q-avatar>
-                <img :src="profileImage || 'https://cdn.quasar.dev/img/avatar.png'" />
+                <img :src="profileImage" />
               </q-avatar>
             </q-avatar>
             <q-btn class="logout-btn" color="secondary" outline label="Logout" @click="Logout" size="sm"
@@ -21,8 +21,10 @@
         </div>
       </q-toolbar>
     </q-header>
-    <q-page-container class="bg-grey-3">
-      <router-view />
+    <q-page-container class="bg-grey-3 ">
+      <div class="bg-image">
+        <router-view />
+      </div>
     </q-page-container>
     <q-footer class="bg-white text-secondary">
       <q-toolbar>
@@ -36,12 +38,13 @@
 import { useUserStore } from 'src/stores/user'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
 
-const { isAuthenticated, profileImage } = storeToRefs(userStore)
-
+const { isAuthenticated } = storeToRefs(userStore)
+const profileImage = computed(() => userStore.profileImage || 'https://cdn.quasar.dev/img/avatar.png')
 async function Logout() {
   userStore.clearToken()
   await router.push('/login')
@@ -51,5 +54,12 @@ async function Logout() {
 <style scoped>
 .avatar-menu:hover .logout-btn {
   display: block !important;
+}
+
+.bg-image {
+  background-image: url('public/images/bg-image.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 </style>
