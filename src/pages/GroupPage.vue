@@ -19,7 +19,8 @@
         </div>
       </div>
       <div class="col-12 lt-sm">
-        <q-expansion-item :label="`Members (${groupMemberNumber})`" header-class="text-subtitle2 text-weight-semibold q-px-sm" class="bg-white">
+        <q-expansion-item :label="`Members (${groupMemberNumber})`"
+          header-class="text-subtitle2 text-weight-semibold q-px-sm" class="bg-white">
           <q-btn dense flat color="secondary" label="Invite Member" icon="add" class="q-px-sm"
             @click="displayPromptDialog" />
           <GroupMemberListItems />
@@ -55,6 +56,10 @@ const groupMemberNumber = computed(() => {
   return group.value?.members ? group.value.members.length : 0
 })
 
+async function inviteMember(groupId: string, email: string) {
+  await groupStore.sendInvitation(groupId, email)
+}
+
 function displayPromptDialog() {
   $q.dialog({
     title: 'Invite member to group',
@@ -66,11 +71,21 @@ function displayPromptDialog() {
     cancel: true,
     persistent: true
   }).onOk(data => {
-    $q.notify({
-      type: 'positive',
-      message: 'An invitation email is sent to ' + data,
-      icon: 'mail'
-    })
+    inviteMember(group.value?.id || '', data)
+      .then(() => {
+        $q.notify({
+          type: 'positive',
+          message: 'An invitation email is sent to ' + data,
+          icon: 'mail'
+        })
+      })
+      .catch((error) => {
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to send invitation: ' + (error?.message || error),
+          icon: 'error'
+        })
+      })
   })
 }
 

@@ -36,8 +36,14 @@ export const useGroupStore = defineStore('group', {
         return;
       }
       const { data } = await api.get('/api/groups/' + id);
-      console.log('Fetched group:', data);
       this.group = data;
+    },
+    async sendInvitation(groupId: string, email: string) {
+      await api.post(`/api/groups/${groupId}/invite`, {
+        subject: `Invitation to join group ${this.group?.name}`,
+        body: `You have been invited to join the group ${this.group?.name}.\n Please accept the invitation via link: ${process.env.FRONTEND_URL}/groups/${groupId}/invitation-accepted`,
+        inviteeEmail: email,
+      });
     },
   },
 });

@@ -53,7 +53,9 @@ export default defineConfig((ctx) => {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        FRONTEND_URL: ctx.dev ? 'http://localhost:9000' : 'http://happysplit.app',
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
