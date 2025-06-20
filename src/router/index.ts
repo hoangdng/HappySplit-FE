@@ -38,7 +38,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   const userStore = useUserStore();
   Router.beforeEach((to, from, next) => {
     if (!userStore.isAuthenticated && to.path !== '/login') {
-      next('/login');
+      next({ path: '/login', query: { redirect: to.fullPath } });
     } else {
       next();
     }

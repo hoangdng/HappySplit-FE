@@ -15,7 +15,23 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { api } from 'boot/axios'
+import { useUserStore } from 'src/stores/user'
+import { onMounted } from 'vue'
+
 
 const route = useRoute()
 const groupId = route.params.id
+const userStore = useUserStore()
+
+const user = userStore.getUserInfoFromToken;
+
+onMounted(async () => {
+  await api.post(`/api/groups/${String(groupId)}/invitation-accepted`, {
+    inviteeEmail: user!.email,
+    inviteeName: user!.name,
+    token: route.query.token
+  })
+})
+
 </script>

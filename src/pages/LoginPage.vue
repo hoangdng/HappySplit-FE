@@ -6,12 +6,15 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { api } from 'boot/axios'
 import { useUserStore } from 'src/stores/user'
+import { useQuasar } from 'quasar'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore();
+const $q = useQuasar()
 
 // Handles the ID token returned from Google
 async function handleCredentialResponse(response: google.accounts.id.CredentialResponse) {
@@ -22,7 +25,6 @@ async function handleCredentialResponse(response: google.accounts.id.CredentialR
 
     // Decode JWT to get profile info
     const payloadBase64 = response.credential.replace(/-/g, '+').replace(/_/g, '/').split('.')[1];
-    console.log('Decoded JWT Payload:', payloadBase64);
     if (typeof payloadBase64 == 'string') {
       const profile = JSON.parse(atob(payloadBase64));
       if (profile && profile.picture) {
@@ -33,10 +35,21 @@ async function handleCredentialResponse(response: google.accounts.id.CredentialR
     // Save your app's JWT token locally
     userStore.setToken(data.token)
 
-    // Redirect to dashboard or home
-    await router.push('/')
+    // Redirect to the page user was trying to access
+    const redirectPath = route.query.redirect as string || '/'
+    await router.push(redirectPath)
+
+    $q.notify({
+      type: 'positive',
+      message: 'Successfully logged in.',
+      icon: 'check'
+    })
   } catch (err) {
-    console.error('Login failed', err)
+    $q.notify({
+      type: 'negative',
+      message: `Login failed. (Error: ${err instanceof Error ? err.message : String(err)})`,
+      icon: 'error'
+    })
   }
 }
 
