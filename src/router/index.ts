@@ -35,14 +35,16 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   });
 
   // Navigation guard: redirect to /login if not authenticated
-  const userStore = useUserStore();
-  Router.beforeEach((to, from, next) => {
-    if (!userStore.isAuthenticated && to.path !== '/login') {
-      next({ path: '/login', query: { redirect: to.fullPath } });
-    } else {
-      next();
-    }
-  });
-
-  return Router;
+  if (process.env.UNAUTHORIZED_TEST_MODE) return Router;
+  else {
+    const userStore = useUserStore();
+    Router.beforeEach((to, from, next) => {
+      if (!userStore.isAuthenticated && to.path !== '/login') {
+        next({ path: '/login', query: { redirect: to.fullPath } });
+      } else {
+        next();
+      }
+    });
+    return Router;
+  }
 });

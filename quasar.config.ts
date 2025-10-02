@@ -55,6 +55,7 @@ export default defineConfig((ctx) => {
       // analyze: true,
       env: {
         FRONTEND_URL: ctx.dev ? 'http://localhost:9000' : 'http://happysplit.app',
+        UNAUTHORIZED_TEST_MODE: false,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
@@ -99,7 +100,7 @@ export default defineConfig((ctx) => {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
     devServer: {
-      // https: true,
+      //https: true,
       open: false, // opens browser window automatically
     },
 

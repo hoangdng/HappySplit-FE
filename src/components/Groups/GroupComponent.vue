@@ -5,7 +5,7 @@
         Groups
       </p>
       <q-btn icon="add" color="secondary" label="Add group" flat dense @click="isDialogDisplay = true" />
-      <GroupCreationDialog :model-value="isDialogDisplay" @add="handleAddGroup" />
+      <GroupCreationDialog v-model="isDialogDisplay" @add="handleAddGroup" />
     </div>
     <GroupListItems :groups="user?.groups" />
   </div>
