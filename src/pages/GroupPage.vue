@@ -26,8 +26,11 @@
           <GroupMemberListItems />
         </q-expansion-item>
       </div>
-      <div class="col-8 bg-white">
-        Group Page Content
+      <div class="col-xs-12 bg-white col-sm-8" :class="$q.screen.lt.sm ? 'q-mt-sm' : ''">
+        <p class="no-margin q-pa-sm text-weight-semibold" :class="$q.screen.gt.xs ? 'text-h5' : 'text-subtitle1'">
+          Expenses
+        </p>
+        <ExpenseList />
       </div>
     </div>
   </q-page>
@@ -35,8 +38,11 @@
 
 <script setup lang="ts">
 import GroupMemberListItems from 'src/components/Groups/GroupMemberListItems.vue';
+import ExpenseList from 'src/components/Expenses/ExpenseList.vue';
 import BalanceComponent from 'src/components/BalanceComponent.vue';
 import { useGroupStore } from 'src/stores/group'
+import { useUserStore } from 'src/stores/user'
+import { useExpenseStore } from 'src/stores/expense'
 import { onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
@@ -47,9 +53,13 @@ const route = useRoute()
 const { group } = storeToRefs(useGroupStore())
 
 const groupStore = useGroupStore()
+const expenseStore = useExpenseStore()
+const userStore = useUserStore()
 onMounted(async () => {
   const groupId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-  await groupStore.fetchGroup(groupId)
+  await groupStore.fetchGroup(groupId!)
+  await expenseStore.fetchExpensesByGroup(groupId!)
+  await userStore.fetchCurrentUser()
 })
 
 const groupMemberNumber = computed(() => {

@@ -5,8 +5,8 @@
         <b>Happy Split</b>
       </q-toolbar-title>
       <div class="q-gutter-lg row items-center" v-if="isAuthenticated">
-        <q-btn color="secondary" label="Add Expense" @click="isDialogDisplay = true" />
-        <AddExpenseDialog v-model="isDialogDisplay" />
+        <q-btn color="secondary" label="Add Expense" @click="isAddExpenseDialogDisplay = true" />
+        <AddExpenseDialog v-model="isAddExpenseDialogDisplay" />
         <div class="avatar-menu" style="position: relative;">
           <q-avatar>
             <q-avatar>
@@ -34,7 +34,7 @@ const profileImage = computed(() => userStore.profileImage || 'https://cdn.quasa
 
 const router = useRouter()
 
-const isDialogDisplay = ref(false)
+const isAddExpenseDialogDisplay = ref(false)
 
 async function logout() {
   userStore.clearToken()

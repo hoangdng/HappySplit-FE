@@ -30,11 +30,7 @@ export const useGroupStore = defineStore('group', {
       await api.post('/api/groups', { name: group.name });
       await userStore.fetchCurrentUser();
     },
-    async fetchGroup(id: string | undefined) {
-      if (!id) {
-        console.error('Group ID is required to fetch group details');
-        return;
-      }
+    async fetchGroup(id: string ) {
       const { data } = await api.get('/api/groups/' + id);
       this.group = data;
     },

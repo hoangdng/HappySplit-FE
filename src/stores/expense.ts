@@ -10,14 +10,13 @@ export interface Expense {
   groupId: string | undefined;
   createdByUserId: string | undefined;
   lastModifiedByUserId: string | undefined;
-  paidByUserId: string | undefined;
   expenseShares: ExpenseShare[];
 }
 
 export interface ExpenseShare {
   id: string | undefined;
   owingUserId: string;
-  amountOwed: number;
+  amount: number;
 }
 
 export const useExpenseStore = defineStore('expense', {
@@ -38,7 +37,8 @@ export const useExpenseStore = defineStore('expense', {
   },
   actions: {
     async createExpense(expense: Expense) {
-      await api.post('/api/expenses', expense);
+      const response = await api.post('/api/expenses', expense);
+      this.expenses.push(response.data);
     },
     async fetchExpenseById(id: string) {
       try {
@@ -49,5 +49,14 @@ export const useExpenseStore = defineStore('expense', {
         this.expenses = [];
       }
     },
+    async fetchExpensesByGroup(groupId: string) {
+      try {
+        const { data } = await api.get(`/api/groups/${groupId}/expenses`);
+        this.expenses = data;
+      } catch (error) {
+        console.error('Failed to fetch expenses:', error);
+        this.expenses = [];
+      }
+    }
   },
 });
