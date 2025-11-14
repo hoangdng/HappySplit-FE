@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { api } from 'boot/axios';
-
 export interface Expense {
   id: string | undefined;
   date: string | undefined;
@@ -16,7 +15,7 @@ export interface Expense {
 export interface ExpenseShare {
   id: string | undefined;
   owingUserId: string;
-  amount: number;
+  amountOwed: number;
 }
 
 export const useExpenseStore = defineStore('expense', {
@@ -39,6 +38,11 @@ export const useExpenseStore = defineStore('expense', {
     async createExpense(expense: Expense) {
       const response = await api.post('/api/expenses', expense);
       this.expenses.push(response.data);
+      this.expenses.sort((a, b) => {
+        const dateA = new Date(a.date ?? '').getTime();
+        const dateB = new Date(b.date ?? '').getTime();
+        return dateB - dateA;
+      });
     },
     async fetchExpenseById(id: string) {
       try {
@@ -57,6 +61,6 @@ export const useExpenseStore = defineStore('expense', {
         console.error('Failed to fetch expenses:', error);
         this.expenses = [];
       }
-    }
+    },
   },
 });

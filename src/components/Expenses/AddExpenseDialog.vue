@@ -99,7 +99,7 @@ async function onAdd() {
       {
         id: undefined,
         owingUserId: paidUser.value?.id ?? userStore.user!.id,
-        amount: expense.value.amount,
+        amountOwed: expense.value.amount,
       }
     ]
   })
