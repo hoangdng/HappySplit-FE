@@ -20,7 +20,7 @@
         <div class="q-mt-md flex justify-center items-center">
           <div class="q-mr-sm">Paid by</div>
           <q-btn outline rounded :label="paidUser?.name ?? userStore.user?.name" color="secondary"
-            @click="isPaidByUserDialogDisplay = true" dense/>
+            @click="isPaidByUserDialogDisplay = true" dense />
           <div class="q-mx-sm">and split</div>
           <q-btn outline rounded :label="splitStrategy" color="secondary" dense />
         </div>
@@ -99,7 +99,7 @@ async function onAdd() {
       {
         id: undefined,
         owingUserId: paidUser.value?.id ?? userStore.user!.id,
-        amountOwed: expense.value.amount,
+        amount: expense.value.amount,
       }
     ]
   })

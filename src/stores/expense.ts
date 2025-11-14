@@ -15,7 +15,7 @@ export interface Expense {
 export interface ExpenseShare {
   id: string | undefined;
   owingUserId: string;
-  amountOwed: number;
+  amount: number;
 }
 
 export const useExpenseStore = defineStore('expense', {

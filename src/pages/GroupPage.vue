@@ -4,7 +4,8 @@
       :class="$q.screen.lt.sm ? 'q-mb-xs text-center' : ''">
       {{ group?.name }}
     </div>
-    <BalanceComponent style="width: 90vw;" />
+    <BalanceComponent style="width: 90vw;" :total-expense="groupStore.getTotalExpense"
+      :owe-amount="groupStore.getTotalOwe" :loan-amount="groupStore.getTotalLoan" />
     <div class="row" style="width: 90vw;">
       <div class="col-4 q-pr-sm gt-xs">
         <div class="bg-white">
