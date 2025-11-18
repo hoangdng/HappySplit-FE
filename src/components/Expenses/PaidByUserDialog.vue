@@ -5,8 +5,8 @@
         <div class="text-h6">Paid by</div>
       </q-card-section>
       <q-list bordered separator>
-        <q-item v-for="member in groupMembers" :key="member.id" clickable v-ripple
-          @click="chosenUser = member" :class="isUserChosen(member) ? 'bg-blue-2' : ''">
+        <q-item v-for="member in groupMembers" :key="member.id" clickable v-ripple @click="chosenUser = member"
+          :class="isUserChosen(member) ? 'bg-blue-2' : ''">
           <q-item-section avatar>
             <q-avatar color="primary" text-color="white">
               {{ member.name.charAt(0).toUpperCase() }}
@@ -16,7 +16,7 @@
             <q-item-label>{{ member.name }}</q-item-label>
             <q-item-label caption>{{ member.email }}</q-item-label>
           </q-item-section>
-          <q-item-section avatar v-if="isUserChosen(member)">
+          <q-item-section avatar v-show="isUserChosen(member)">
             <q-avatar icon="check" />
           </q-item-section>
         </q-item>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed } from 'vue'
+import { defineProps, defineEmits, ref, computed, watch } from 'vue'
 import { useUserStore } from 'src/stores/user';
 import type { User } from 'src/stores/user';
 import { useGroupStore } from 'src/stores/group';
@@ -44,6 +44,11 @@ const groupMembers = computed(() => {
 })
 
 const chosenUser = ref(userStore.user)
+watch(() => userStore.user, (newUser) => {
+  if (newUser) {
+    chosenUser.value = newUser
+  }
+}, { immediate: true })
 
 const isUserChosen = computed(() => {
   return (user: User) => {

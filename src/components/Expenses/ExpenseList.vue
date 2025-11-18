@@ -11,7 +11,7 @@
           <div>{{ expense.amount }} VNĐ</div>
         </div>
         <div class="col-4">
-          <div>paid by {{ getPaidByName(expense) }} and split equally</div>
+          <div>paid by {{ getPaidByName(expense) }} and split {{ getSplitStrategyLabel(expense) }}</div>
         </div>
       </div>
     </q-item>
@@ -40,13 +40,20 @@ function getExpenseMonth(dateString: string) {
 
 function getPaidByName(expense: Expense) {
   const groupStore = useGroupStore();
-  if (expense.expenseShares.length === 1) {
+  if (expense.paymentShares.length === 1) {
     return groupStore.group?.members?.find(
-      (member) => member.id === expense.expenseShares[0]!.owingUserId,
+      (member) => member.id === expense.paymentShares[0]!.payUserId,
     )?.name;
   }
 
   return 'Multiple Users'
+}
+
+function getSplitStrategyLabel(expense: Expense) {
+  if (expense.expenseShares.length < 2) return 'equally'
+  const firstAmount = expense.expenseShares[0]?.amount
+  const isEqual = expense.expenseShares.every(share => share.amount === firstAmount)
+  return isEqual ? 'equally' : 'unequally'
 }
 
 </script>

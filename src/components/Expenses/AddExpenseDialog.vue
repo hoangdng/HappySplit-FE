@@ -10,7 +10,7 @@
         <q-input v-model="expense.description" label="Description" type="textarea" autogrow />
         <div class="row q-gutter-x-md">
           <div class="col">
-            <q-input v-model="expense.amount" label="Amount" suffix="VNĐ" mask="#.###.###.###" unmasked-value
+            <q-input v-model.number="expense.amount" label="Amount" suffix="VNĐ" mask="#.###.###.###" unmasked-value
               reverse-fill-mask />
           </div>
           <div class="col">
@@ -20,9 +20,10 @@
         <div class="q-mt-md flex justify-center items-center">
           <div class="q-mr-sm">Paid by</div>
           <q-btn outline rounded :label="paidUser?.name ?? userStore.user?.name" color="secondary"
-            @click="isPaidByUserDialogDisplay = true" dense />
+            @click="isPaidByUserDialogDisplay = true" dense class="q-px-sm" />
           <div class="q-mx-sm">and split</div>
-          <q-btn outline rounded :label="splitStrategy" color="secondary" dense />
+          <q-btn outline rounded :label="splitStrategyLabel" color="secondary"
+            @click="isSplitStrategyDialogDisplay = true" dense class="q-px-sm" :class="$q.screen.lt.sm ? 'q-mt-sm' : ''" />
         </div>
       </q-card-section>
       <q-card-actions align="right">
@@ -32,15 +33,20 @@
     </q-card>
   </q-dialog>
   <PaidByUserDialog v-model="isPaidByUserDialogDisplay" @update-paid-user="paidUser = $event" />
+  <SplitStrategyDialog v-model="isSplitStrategyDialogDisplay" :members="groupStore.group?.members! || []"
+    :total-amount="expense.amount" @apply="handleSplitStrategy" />
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed } from 'vue'
+import { defineProps, defineEmits, ref, computed, watch } from 'vue'
 import { useUserStore } from 'src/stores/user';
 import { useExpenseStore } from 'src/stores/expense';
 import { useGroupStore } from 'src/stores/group';
 import { useRoute } from 'vue-router';
 import PaidByUserDialog from "src/components/Expenses/PaidByUserDialog.vue";
+import SplitStrategyDialog from "src/components/Expenses/SplitStrategyDialog.vue";
+import type { SplitStrategy, ExpenseShare } from 'src/stores/expense';
+import type { User } from 'src/stores/user';
 
 const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits(['update:modelValue'])
@@ -48,10 +54,6 @@ const userStore = useUserStore()
 const expenseStore = useExpenseStore()
 const groupStore = useGroupStore()
 const route = useRoute()
-
-const splitStrategy = ref('equally')
-const paidUser = ref(userStore.user)
-const isPaidByUserDialogDisplay = ref(false)
 
 const isGroupDetailsRoute = computed(() => route.name === 'groupDetails')
 const group = computed({
@@ -61,6 +63,25 @@ const group = computed({
   set: (val) => {
     groupStore.fetchGroup(val.value!).catch(err => console.error(err))
   }
+})
+
+const splitStrategy = ref<SplitStrategy>({ strategy: 'equally', members: [], splits: {} })
+const paidUser = ref(userStore.user)
+const isPaidByUserDialogDisplay = ref(false)
+const isSplitStrategyDialogDisplay = ref(false)
+
+watch(() => groupStore.group?.members, (members) => {
+  if (splitStrategy.value.strategy === 'equally') {
+    splitStrategy.value.members = members ?? []
+  }
+}, { immediate: true })
+
+const splitStrategyLabel = computed(() => {
+  if (!splitStrategy.value) return 'equally'
+  if (splitStrategy.value.strategy === 'equally') {
+    return `equally (${splitStrategy.value.members.length} members)`
+  }
+  return `unequally (${Object.entries(splitStrategy.value.splits).length} members)`
 })
 
 const expense = ref({
@@ -76,16 +97,42 @@ const groupOptions = computed(() =>
   }))
 )
 
+function handleSplitStrategy(strategy: SplitStrategy) {
+  splitStrategy.value = strategy
+}
+
 function closeDialog() {
   expense.value = {
     date: new Date().toISOString().split('T')[0],
     amount: 0,
     description: ''
   }
+  splitStrategy.value = { strategy: 'equally', members: groupStore.group?.members ?? [], splits: {} }
   emit('update:modelValue', false)
 }
 
 async function onAdd() {
+  // Build expense shares based on split strategy
+  let expenseShares: ExpenseShare[] = []
+
+  if (!splitStrategy.value || splitStrategy.value.strategy === 'equally') {
+    const members: User[] = splitStrategy.value?.members ?? [paidUser.value ?? userStore.user!]
+    const amountPerMember = expense.value.amount / members.length
+    console.log("member", members);
+
+    expenseShares = members.map((member: User) => ({
+      id: undefined,
+      owingUserId: member.id,
+      amount: amountPerMember
+    }))
+  } else {
+    expenseShares = Object.entries(splitStrategy.value.splits).map(([memberId, amount]) => ({
+      id: undefined,
+      owingUserId: memberId,
+      amount: amount
+    }))
+  }
+
   await expenseStore.createExpense({
     id: undefined,
     date: expense.value.date,
@@ -95,13 +142,13 @@ async function onAdd() {
     amount: expense.value.amount,
     groupId: group.value.value,
     createdByUserId: userStore.user!.id,
-    expenseShares: [
-      {
-        id: undefined,
-        owingUserId: paidUser.value?.id ?? userStore.user!.id,
-        amount: expense.value.amount,
-      }
-    ]
+    expenseShares,
+    // TODO: for now, assume the paid user pays the full amount
+    paymentShares: [{
+      id: undefined,
+      payUserId: paidUser.value?.id ?? userStore.user!.id,
+      amount: expense.value.amount
+    }]
   })
 
   closeDialog()

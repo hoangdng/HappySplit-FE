@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from 'boot/axios';
+import type { User } from './user';
+
 export interface Expense {
   id: string | undefined;
   date: string | undefined;
@@ -10,12 +12,25 @@ export interface Expense {
   createdByUserId: string | undefined;
   lastModifiedByUserId: string | undefined;
   expenseShares: ExpenseShare[];
+  paymentShares: PaymentShare[];
 }
 
 export interface ExpenseShare {
   id: string | undefined;
   owingUserId: string;
   amount: number;
+}
+
+export interface PaymentShare {
+  id: string | undefined;
+  payUserId: string;
+  amount: number;
+}
+
+export interface SplitStrategy {
+  strategy: 'equally' | 'unequally';
+  members: User[];
+  splits: Record<string, number>;
 }
 
 export const useExpenseStore = defineStore('expense', {
